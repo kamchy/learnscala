@@ -13,7 +13,6 @@ import scala.util.Random
 class UpdaterThread extends Thread {
   override def run() = {
     (1 to 100).foreach{_=>update}
-    Thread.sleep(1000)
   }
   def randomKey(i:Iterable[String]) = {
     val s = i.toSeq
@@ -32,6 +31,7 @@ class UpdaterThread extends Thread {
       App.ilv.repaint()
       App.update(App.label, key)
     }
+    Thread.sleep(1000)
   }
 
 }
@@ -83,12 +83,12 @@ object App extends SimpleSwingApplication {
   }
   var lastdata = ""
   def update(label:Label, data:String = "") = {
-    lastdata = if (data == "") lastdata else data
+    if (data != lastdata) lastdata = data
     label.text = 
       "<html><font color=#672638 size=24px> Lista " + 
       ilv.listData.length + 
       " napisów. <br/>"+
-      lastdata
+      lastdata +
       " </font>  </html>"
   }
     val label = new Label {
