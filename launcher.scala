@@ -5,6 +5,7 @@ import scala.collection.immutable.TreeMap
 import java.awt.Dimension
 import java.lang.Thread
 import scala.util.Random
+import executor.Executor
 
 
 class AppConfig {
@@ -51,7 +52,7 @@ class MyFrame(cfg : AppConfig) extends MainFrame {
     contents ++ Seq(areaScroll, commandField)
   })
   
-  def exec(s:String) = 
+  def exec(s:String) = { Executor.execute(s) }
   def bordered[T <:Component] (c: T): T = {
     c.border = cfg.border
     return c
