@@ -8,7 +8,8 @@ import scala.actors.Actor._
 object Executor {
 
 private val caller = self
-private val WAIT_TIME = 2000
+private val WAIT_TIME = 20000
+private val TEST_WAIT = 5000
 
   def execute (command : String) : String = {
     val cmd = command.split(" ")
@@ -32,6 +33,7 @@ private val WAIT_TIME = 2000
       receive {
         case (proc:Process, cmd:String) =>
           printProcessData(cmd)
+          waitSome()
           val streamReader = new InputStreamReader(proc.getInputStream)
           val bufferedReader = new BufferedReader(streamReader)
           val stringBuilder = new StringBuilder()
@@ -46,9 +48,18 @@ private val WAIT_TIME = 2000
       }
    }
 
-   def printProcessData(cmd : String) = {
-     "reader " + Thread.currentThread + ": " + cmd
-   }
+  def printProcessData(cmd : String) = {
+    "reader " + Thread.currentThread + ": " + cmd
+  }
+
+  def waitSome() = {
+    try {
+      Thread.sleep(TEST_WAIT)
+    } catch {
+      case e : Exception => throw new RuntimeException()
+    }
+  }
+   
 
 
  }

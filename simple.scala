@@ -92,7 +92,10 @@ object App extends SimpleSwingApplication {
       " </font>  </html>"
   }
     val label = new Label {
-      minimumSize = new Dimension(0, 300)
+      size = new Dimension(0, 300)
+      minimumSize  = size
+      preferredSize = size
+
       update(this)
     }
   def top = new MainFrame {

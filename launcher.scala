@@ -41,7 +41,7 @@ class MyFrame(cfg : AppConfig) extends MainFrame {
     listenTo(commandField)
     reactions += {
       case EditDone(commandField) => {
-        area.append(exec(commandField.text) + "\n")
+        exec(commandField.text)
         commandField.selectAll
 
       }
@@ -53,6 +53,8 @@ class MyFrame(cfg : AppConfig) extends MainFrame {
   })
   
   def exec(s:String) = { Executor.execute(s) }
+  def updateArea(s:String) = { area.append(s + "\n") }
+
   def bordered[T <:Component] (c: T): T = {
     c.border = cfg.border
     return c
