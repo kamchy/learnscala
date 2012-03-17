@@ -3,50 +3,46 @@ import java.io._
 import scala.actors._
 import scala.actors.Actor._
 
- 
-  
-object Executor {
 
-private val caller = self
-private val WAIT_TIME = 20000
+ 
+case class Response (s: String)
+case class Command(s:String)
+case class Error(s:String)
+  
+class Executor extends Actor {
+
+private val WAIT_TIME = 2000
 private val TEST_WAIT = 5000
 
-  def execute (command : String) : String = {
+  def act = {
+    loop {
+      self.receive {
+        case cmd@Command(command) => 
+          try {
+            val proc = createAndStartProcess(command)
+            execute(proc, command)
+          } catch {
+            case e : IOException => sender ! Error(e.getMessage)
+          }
+      }
+    }
+  }
+
+  def execute(proc : Process, cmd : String) {
+    println("Executor received %s, creating reader".format(cmd))
+    val reader = new Reader(sender).start
+    println("reader started")
+    reader !  proc
+  }
+
+  def createAndStartProcess (command : String) : Process = {
     val cmd = command.split(" ")
     val pb = new ProcessBuilder(cmd : _*)
     pb.redirectErrorStream(true)
     val proc = pb.start()
-
-    reader ! (proc, command)
-    //Receive the console output from the actor.
-    receiveWithin(WAIT_TIME) {
-      case TIMEOUT => "receiving Timeout"
-      case result:String => result
-    }
+    return proc
   }
 
-
-  private val reader = actor {
-    println("created actor: " + Thread.currentThread)
-    var continue = true
-    loopWhile(continue){
-      receive {
-        case (proc:Process, cmd:String) =>
-          printProcessData(cmd)
-          waitSome()
-          val streamReader = new InputStreamReader(proc.getInputStream)
-          val bufferedReader = new BufferedReader(streamReader)
-          val stringBuilder = new StringBuilder()
-          var line:String = null
-          while({line = bufferedReader.readLine; line != null}){
-             stringBuilder.append(line)
-             stringBuilder.append("\n")
-           }
-           bufferedReader.close
-           caller ! stringBuilder.toString
-         }
-      }
-   }
 
   def printProcessData(cmd : String) = {
     "reader " + Thread.currentThread + ": " + cmd
